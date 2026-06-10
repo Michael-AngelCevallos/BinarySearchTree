@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <time.h>
-
+#include <algorithm>
 #include "CSVparser.hpp"
 
 using namespace std;
@@ -154,15 +154,16 @@ void BinarySearchTree::Insert(Bid bid) {
  * Remove a bid
  */
 void BinarySearchTree::Remove(string bidId) {
-    // FIXME (7a) Implement removing a bid from the tree
+    //! FIXME (7a) Implement removing a bid from the tree
     // remove node root bidID
+    root = removeNode(root, bidId);
 }
 
 /**
  * Search for a bid
  */
 Bid BinarySearchTree::Search(string bidId) {
-    // ! FIXME (8) Implement searching the tree for a bid
+    // ! FIXME (8) Implement searching the tree for a bid(COmpleted)
 
     // set current node equal to root
     Node* current = root;
@@ -301,25 +302,73 @@ void BinarySearchTree::preOrder(Node* node) {
  * Remove a bid from some node (recursive)
  */
 Node* BinarySearchTree::removeNode(Node* node, string bidId) {
-    // ! FIXME (7b) Implement removing a bid from the tree
+
     // if node = nullptr return node
+    if (node == nullptr) {
+        return node;
+    }
+
     // (otherwise recurse down the left subtree)
-    // check for match and if so, remove left node using recursive call 
+    // check for match and if so, remove left node using recursive call
+    if (bidId < node->bid.bidId) {
+        node->left = removeNode(node->left, bidId);
+    }
+
     // (otherwise recurse down the right subtree)
     // check for match and if so, remove right node using recursive call
+    else if (bidId > node->bid.bidId) {
+        node->right = removeNode(node->right, bidId);
+    }
+
     // (otherwise no children so node is a leaf node)
-    // if left node = nullptr && right node = nullptr delete node 
-    // (otherwise check one child to the left)
-    // if left node != nullptr && right node = nullptr delete node 
-    // (otherwise check one child to the right)
-    // if left node = nullptr && right node != nullptr delete node
-    // (otherwise more than one child so find the minimum)
-    // create temp node to right
-    // while left node is not nullptr keep moving temp left
-    // make node bid (right) equal to temp bid (left)
-    // remove right node using recursive call
+    // if left node = nullptr && right node = nullptr delete node
+    else {
+
+        if (node->left == nullptr && node->right == nullptr) {
+            delete node;
+            node = nullptr;
+        }
+
+        // (otherwise check one child to the left)
+        // if left node != nullptr && right node = nullptr delete node
+        else if (node->left != nullptr && node->right == nullptr) {
+            Node* temp = node;
+            node = node->left;
+            delete temp;
+        }
+
+        // (otherwise check one child to the right)
+        // if left node = nullptr && right node != nullptr delete node
+        else if (node->left == nullptr && node->right != nullptr) {
+            Node* temp = node;
+            node = node->right;
+            delete temp;
+        }
+
+        // (otherwise more than one child so find the minimum)
+        else {
+
+            // create temp node to right
+            Node* temp = node->right;
+
+            // while left node is not nullptr keep moving temp left
+            while (temp->left != nullptr) {
+                temp = temp->left;
+            }
+
+            // make node bid (right) equal to temp bid (left)
+            node->bid = temp->bid;
+
+            // remove right node using recursive call
+            node->right = removeNode(node->right, temp->bid.bidId);
+        }
+    }
+
     // return node
+    return node;
 }
+    
+ 
 
 
 
